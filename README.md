@@ -61,4 +61,4 @@
 
 ---
 
-参考链接：[商店售卖物品清单表格版](https://docs.qq.com/sheet/DTkdNZFVlUmRKZHJI?tab=BB08J2)
+参考链接：[商店售卖物品清单](https://docs.qq.com/sheet/DTkdNZFVlUmRKZHJI?tab=BB08J2)（感谢cart、mz参与商店物品的配置）
