@@ -8,21 +8,21 @@
 
 ## 插件下载
 插件在 TShock v4.5.18（Terraria 1.4.3.6）环境下测试通过。<br>
-插件下载：[MoreShopItem_V1.0.dll](https://gitee.com/hufang360/TShockMoreShopItem/releases/download/v1.0/MoreShopItem_V1.0.dll) <br><br>
+插件下载：[MoreShopItem_V1.0.dll](https://gitee.com/hufang360/TShockMoreShopItem/releases/download/v1.0/MoreShopItem_V1.0.1.dll) <br><br>
 
 
 ## 配置文件
-插件首次启动会在 tshock目录下自动创建一个名为 “MoreShopItem.json”文件，内容和本项目的 [./res/config.json](./res/config.json) 相同。<br>
+安装插件后，首次启动会自动创建配置文件，位于 `./tshock/MoreShopItem/config.json`，内容和本项目的 [./res/config.json](./res/config.json) 文件相同。<br>
 
 配置说明：
 
 ```json
 {
     // （这个是备注，目的是说明各个字段，实际配置这样写会出错）
-    
+
     // 和npc对话后，多加附加物品到NPC商店
     "delay": 2000,
-    
+
     // 商店列表
     "shop": [
         // 第一个商店
@@ -34,7 +34,7 @@
                     "id": 2674,  // 物品id
                     "comment": "学徒诱饵",  // 物品名称，可不写
                     "price": 1000,  // 单价，多少铜币，注意是单价
-                    "unlock": ["世吞", "雨天"]  // 解锁条件，可不写，可写多条，全部的解锁条件见：https://docs.qq.com/sheet/DTkdNZFVlUmRKZHJI?tab=8ojz5h
+                    "unlock": ["世吞", "雨天"]  // 解锁条件，可不写，可写多条
                 },
                 {
                     "id": 9,
@@ -59,6 +59,12 @@
 ```
 <br>
 
----
 
-参考链接：[商店售卖物品清单](https://docs.qq.com/sheet/DTkdNZFVlUmRKZHJI?tab=BB08J2)（感谢cart、mz参与商店物品的配置）
+本插件未新增加任何指令，修改配置文件后，请输入tshock自带的 "/reload" 指令重新载入配置。
+
+<br>
+<br>
+
+## 参考链接：<br>
+- [插件支持的解锁条件](https://docs.qq.com/sheet/DTkdNZFVlUmRKZHJI?tab=8ojz5h)
+- [商店售卖物品清单](https://docs.qq.com/sheet/DTkdNZFVlUmRKZHJI?tab=BB08J2)（感谢cart、mz参与商店物品的配置）

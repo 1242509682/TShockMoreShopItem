@@ -23,7 +23,8 @@ namespace MoreShopItem
 
         public static Config _config;
         public static bool isLoading = false;
-        public static readonly string configFile = Path.Combine(TShock.SavePath, "MoreShopItem.json");
+        public static string saveDir = Path.Combine(TShock.SavePath, "MoreShopItem");
+        public static readonly string configFile = Path.Combine(saveDir, "config.json");
 
         // 商店id和npcid的对照关系
         private readonly short[] shop_ids = new short[24] { 17, 19, 20, 38, 54, 107, 108, 124, 142, 160, 178, 207, 208, 209, 227, 228, 229, 353, 368, 453, 550, 588, 633, 663 };
@@ -41,6 +42,9 @@ namespace MoreShopItem
         {
             GetDataHandlers.NpcTalk.Register(OnNPCTalk);
             GeneralHooks.ReloadEvent += OnReload;
+
+            if (!Directory.Exists(saveDir)) Directory.CreateDirectory(saveDir);
+            Reload();
         }
 
         /// <summary>
@@ -84,8 +88,8 @@ namespace MoreShopItem
                 int startIndex = 0;
                 for (int i = 0; i < 40; i++)
                 {
-                    utils.Log($"[msi]: 名称：{shopItems[i].Name} 激活：{shopItems[i].active}");
-                    if(!shopItems[i].active)
+                    //utils.Log($"[msi]: 名称：{shopItems[i].Name} 激活：{shopItems[i].active}");
+                    if (!shopItems[i].active)
                     {
                         startIndex = i;
                         break;
