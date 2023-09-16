@@ -8,7 +8,7 @@
 
 ## 插件下载
 插件在 TShock v4.5.18（Terraria 1.4.3.6）环境下测试通过。<br>
-插件下载：[MoreShopItem_V1.0.dll](https://gitee.com/hufang360/TShockMoreShopItem/releases/download/v1.0/MoreShopItem_V1.0.1.dll) <br><br>
+插件下载：[MoreShopItem_V1.0.1.dll](https://github.com/hufang360/TShockMoreShopItem/releases/download/v1.0/MoreShopItem_V1.0.1.dll) <br><br>
 
 
 ## 配置文件
