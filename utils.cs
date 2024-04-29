@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;

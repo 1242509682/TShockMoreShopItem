@@ -1,58 +1,23 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Text;
+using TShockAPI;
 using Terraria;
 using Terraria.GameContent.Events;
+using System.Reflection;
 
+//命名空间，想其他项目调用这个项目必须统一命名空间
 namespace MoreShopItem
 {
-    /// <summary>
-    /// 配置文件
-    /// </summary>
-    public class Config
+    public class Configuration
     {
-        // 货架物品
+        public int delay = 2000;
         public List<ShopItem> shop = new List<ShopItem>();
 
-        // 物品附加延迟
-        public int delay = 2000;
+        //配置文件存放路径
+        public static readonly string FilePath = Path.Combine(TShock.SavePath, "MoreShopItem.json");
 
+        #region 读取与创建配置文件方法
         // 内嵌配置文件名称
-        public const string RES_NAME = "MoreShopItem.res.config.json";
-
-        public static Config Load(string path)
-        {
-            if (File.Exists(path))
-            {
-                return JsonConvert.DeserializeObject<Config>(File.ReadAllText(path), new JsonSerializerSettings()
-                {
-                    Error = (sender, error) => error.ErrorContext.Handled = true
-                });
-            }
-            else
-            {
-                // 读取内嵌配置文件
-                string text = utils.FromEmbeddedPath(RES_NAME);
-                Config c = JsonConvert.DeserializeObject<Config>(text, new JsonSerializerSettings()
-                {
-                    Error = (sender, error) => error.ErrorContext.Handled = true
-                });
-
-                // 将内嵌配置文件拷出
-                File.WriteAllText(path, text);
-
-                return c;
-            }
-        }
-
-        public static void GenConfig(string path)
-        {
-            // 将内嵌配置文件拷出
-            if (!File.Exists(path)) File.WriteAllText(path, utils.FromEmbeddedPath(RES_NAME));
-        }
-
-
         public int FindShopItem(int npcID)
         {
             for (int i = 0; i < shop.Count; i++)
@@ -61,12 +26,47 @@ namespace MoreShopItem
             }
             return -1;
         }
+
+        //创建 写入你 👆 上面的参数
+        public Configuration Write(string path)
+        {
+            File.WriteAllText(path, JsonConvert.SerializeObject(this, (Formatting)1));
+            return this;
+        }
+
+        public static Configuration Read(string path)
+        {
+            if (!File.Exists(path))
+            {
+                WriteExample(path);
+            }
+            return JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(path));
+        }
+
+        public static void WriteExample(string path)
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string Namespace = assembly.GetName().Name.Trim();
+            string FolderName = "res".Trim();
+            string FullName = $"{Namespace}.{FolderName}.MoreShopItem.res.config.json";
+
+            Stream ResourceStream = assembly.GetManifestResourceStream(FullName);
+
+            if (ResourceStream == null)
+            {
+                throw new InvalidOperationException($"无法找到嵌入资源：{FullName}");
+            }
+
+            using (StreamReader reader = new StreamReader(ResourceStream))
+            {
+                string content = reader.ReadToEnd();
+                File.WriteAllText(path, content);
+            }
+        }
+        #endregion
     }
 
-
-    /// <summary>
-    /// 配置文件：某个商店
-    /// </summary>
+    #region 配置商店的基类
     public class ShopItem
     {
         public List<Goods> item = new List<Goods>();
@@ -188,10 +188,7 @@ namespace MoreShopItem
         }
     }
 
-
-    /// <summary>
-    /// 配置文件：商品信息
-    /// </summary>
+    // 配置文件：商品信息
     public class Goods
     {
         public int id = 0;
@@ -206,6 +203,7 @@ namespace MoreShopItem
         public int price = 1;
 
         public List<string> unlock = new List<string>();
-    }
+    } 
+    #endregion
 
 }
