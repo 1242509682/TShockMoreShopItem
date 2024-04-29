@@ -1,14 +1,18 @@
 # 更多商店物品
-
+作者：hufang
+修改：miao 羽学
 让NPC卖更多的物品。<br>
 
 当你和NPC对话后的2秒内，打开商店，会将配置文件中满足条件的物品附加到商店内。<br><br>
 
 
 
-## 插件下载
-插件在 TShock v4.5.18（Terraria 1.4.3.6）环境下测试通过。<br>
-插件下载：[MoreShopItem_V1.0.1.dll](https://github.com/hufang360/TShockMoreShopItem/releases/download/v1.0/MoreShopItem_V1.0.1.dll) <br><br>
+## 更新日志
+v1.0.3
+羽学修复了内嵌配置文件方法（顺便给它换了个配置文件）
+
+v1.0.2
+miao 修复了覆盖原有商品 适配了.net 6.0
 
 
 ## 配置文件
