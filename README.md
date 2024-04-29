@@ -10,13 +10,14 @@
 ## 更新日志
 v1.0.3
 羽学修复了内嵌配置文件方法（顺便给它换了个配置文件）
+配置文件路径也改成了.tshock/里面，不再建个MoreShopItem文件夹
 
 v1.0.2
 miao 修复了覆盖原有商品 适配了.net 6.0
 
 
 ## 配置文件
-安装插件后，首次启动会自动创建配置文件，位于 `./tshock/MoreShopItem/config.json`，内容和本项目的 [./res/config.json](./res/config.json) 文件相同。<br>
+安装插件后，首次启动会自动创建配置文件，位于 `./tshock/MoreShopItem.json`，内容和本项目的 [./res/MoreShopItem.res.config.json](./res/MoreShopItem.res.config.json) 文件相同。<br>
 
 配置说明：
 
