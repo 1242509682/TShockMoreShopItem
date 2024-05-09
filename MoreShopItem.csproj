@@ -6,12 +6,6 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
     <ItemGroup>
-      <None Remove="res\MoreShopItem.res.config.json" />
-    </ItemGroup>
-    <ItemGroup>
-      <EmbeddedResource Include="res\MoreShopItem.res.config.json" />
-    </ItemGroup>
-    <ItemGroup>
       <PackageReference Include="TShock" Version="5.*" />
     </ItemGroup>
 </Project>
