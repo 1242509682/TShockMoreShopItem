@@ -10,49 +10,44 @@ namespace MoreShopItem
 {
     public class utils
     {
-        /// <summary>
-        /// 获取内嵌文件
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
         public static string FromEmbeddedPath(string path)
         {
-            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
-            StreamReader streamReader = new StreamReader(stream);
-            return streamReader.ReadToEnd();
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string resourceName = assembly.GetManifestResourceNames()
+                .FirstOrDefault(name => name.EndsWith(path, StringComparison.OrdinalIgnoreCase))!;
+
+            if (resourceName == null)
+            {
+                throw new ArgumentException($"嵌入资源 '{path}' 未找到。", nameof(path));
+            }
+
+            using Stream stream = assembly.GetManifestResourceStream(resourceName)!;
+            if (stream == null)
+            {
+                throw new InvalidOperationException($"无法打开嵌入资源流: {resourceName}");
+            }
+
+            using StreamReader reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
 
-        /// <summary>
-        /// 日志
-        /// </summary>
+
         public static void Log(string msg)
         {
-            TShock.Log.ConsoleInfo($"[MoreShopItem]：{msg}");
+            TShock.Log.ConsoleInfo("[MoreShopItem]：" + msg);
         }
 
-
-        #region 更新商店商品
-        /// 下面的代码借用至 Chest.cs SetupShop方法
-
-        /// <summary>
-        /// 更新商店商品
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="plr"></param>
         public static Item[] SetupShop(int type, Player plr)
         {
-            bool flag = plr.currentShoppingSettings.PriceAdjustment <= 0.89999997615814209;
+            bool flag = plr.currentShoppingSettings.PriceAdjustment <= 0.8999999761581421;
             Item[] array = new Item[40];
             for (int i = 0; i < 40; i++)
             {
                 array[i] = new Item();
             }
             int num = 0;
-
-            #region part 1
             switch (type)
             {
-                #region 商人 17
                 case 1:
                     {
                         array[num].SetDefaults(88);
@@ -71,8 +66,18 @@ namespace MoreShopItem
                         num++;
                         array[num].SetDefaults(28);
                         num++;
+                        if (Main.hardMode)
+                        {
+                            array[num].SetDefaults(188);
+                            num++;
+                        }
                         array[num].SetDefaults(110);
                         num++;
+                        if (Main.hardMode)
+                        {
+                            array[num].SetDefaults(189);
+                            num++;
+                        }
                         array[num].SetDefaults(40);
                         num++;
                         array[num].SetDefaults(42);
@@ -113,9 +118,9 @@ namespace MoreShopItem
                             array[num].SetDefaults(488);
                             num++;
                         }
-                        for (int n = 0; n < 58; n++)
+                        for (int num6 = 0; num6 < 58; num6++)
                         {
-                            if (plr.inventory[n].type == 930)
+                            if (plr.inventory[num6].type == 930)
                             {
                                 array[num].SetDefaults(931);
                                 num++;
@@ -148,9 +153,6 @@ namespace MoreShopItem
                         }
                         break;
                     }
-                #endregion
-
-                #region 军火商 19
                 case 2:
                     array[num].SetDefaults(97);
                     num++;
@@ -195,6 +197,11 @@ namespace MoreShopItem
                         array[num].SetDefaults(1432);
                         num++;
                     }
+                    if (Main.hardMode)
+                    {
+                        array[num].SetDefaults(2177);
+                        num++;
+                    }
                     if (plr.HasItem(1258))
                     {
                         array[num].SetDefaults(1261);
@@ -230,16 +237,16 @@ namespace MoreShopItem
                         num++;
                     }
                     break;
-                #endregion
-
-                #region 树妖 20
                 case 3:
                     if (Main.bloodMoon)
                     {
                         if (WorldGen.crimson)
                         {
-                            array[num].SetDefaults(2886);
-                            num++;
+                            if (!Main.remixWorld)
+                            {
+                                array[num].SetDefaults(2886);
+                                num++;
+                            }
                             array[num].SetDefaults(2171);
                             num++;
                             array[num].SetDefaults(4508);
@@ -247,8 +254,11 @@ namespace MoreShopItem
                         }
                         else
                         {
-                            array[num].SetDefaults(67);
-                            num++;
+                            if (!Main.remixWorld)
+                            {
+                                array[num].SetDefaults(67);
+                                num++;
+                            }
                             array[num].SetDefaults(59);
                             num++;
                             array[num].SetDefaults(4504);
@@ -257,8 +267,11 @@ namespace MoreShopItem
                     }
                     else
                     {
-                        array[num].SetDefaults(66);
-                        num++;
+                        if (!Main.remixWorld)
+                        {
+                            array[num].SetDefaults(66);
+                            num++;
+                        }
                         array[num].SetDefaults(62);
                         num++;
                         array[num].SetDefaults(63);
@@ -279,6 +292,8 @@ namespace MoreShopItem
                         num++;
                     }
                     array[num].SetDefaults(27);
+                    num++;
+                    array[num].SetDefaults(5309);
                     num++;
                     array[num].SetDefaults(114);
                     num++;
@@ -301,10 +316,13 @@ namespace MoreShopItem
                         array[num].SetDefaults(4505);
                         num++;
                     }
-                    if (plr.ZoneGlowshroom)
+                    if (plr.ZoneUnderworldHeight)
                     {
-                        array[num].SetDefaults(194);
-                        num++;
+                        array[num++].SetDefaults(5214);
+                    }
+                    else if (plr.ZoneGlowshroom)
+                    {
+                        array[num++].SetDefaults(194);
                     }
                     if (Main.halloween)
                     {
@@ -389,9 +407,6 @@ namespace MoreShopItem
                         }
                     }
                     break;
-                #endregion
-
-                #region 爆破专家 36
                 case 4:
                     {
                         array[num].SetDefaults(168);
@@ -415,36 +430,36 @@ namespace MoreShopItem
                             array[num].SetDefaults(1347);
                             num++;
                         }
-                        for (int j = 0; j < 58; j++)
+                        for (int k = 0; k < 58; k++)
                         {
-                            if (plr.inventory[j].type == 4827)
+                            if (plr.inventory[k].type == 4827)
                             {
                                 array[num].SetDefaults(4827);
                                 num++;
                                 break;
                             }
                         }
-                        for (int k = 0; k < 58; k++)
+                        for (int l = 0; l < 58; l++)
                         {
-                            if (plr.inventory[k].type == 4824)
+                            if (plr.inventory[l].type == 4824)
                             {
                                 array[num].SetDefaults(4824);
                                 num++;
                                 break;
                             }
                         }
-                        for (int l = 0; l < 58; l++)
+                        for (int m = 0; m < 58; m++)
                         {
-                            if (plr.inventory[l].type == 4825)
+                            if (plr.inventory[m].type == 4825)
                             {
                                 array[num].SetDefaults(4825);
                                 num++;
                                 break;
                             }
                         }
-                        for (int m = 0; m < 58; m++)
+                        for (int n = 0; n < 58; n++)
                         {
-                            if (plr.inventory[m].type == 4826)
+                            if (plr.inventory[n].type == 4826)
                             {
                                 array[num].SetDefaults(4826);
                                 num++;
@@ -453,9 +468,6 @@ namespace MoreShopItem
                         }
                         break;
                     }
-                #endregion
-
-                #region 服装商 54
                 case 5:
                     {
                         array[num].SetDefaults(254);
@@ -598,10 +610,16 @@ namespace MoreShopItem
                         }
                         if (NPC.downedFrost)
                         {
-                            array[num].SetDefaults(1275);
-                            num++;
-                            array[num].SetDefaults(1276);
-                            num++;
+                            if (Main.dayTime)
+                            {
+                                array[num].SetDefaults(1275);
+                                num++;
+                            }
+                            else
+                            {
+                                array[num].SetDefaults(1276);
+                                num++;
+                            }
                         }
                         if (Main.halloween)
                         {
@@ -616,17 +634,16 @@ namespace MoreShopItem
                             array[num++].SetDefaults(3734);
                             array[num++].SetDefaults(3735);
                         }
-                        int golferScoreAccumulated = plr.golferScoreAccumulated;
-                        if (num < 38 && golferScoreAccumulated >= 2000)
+                        int golferScoreAccumulated2 = Main.LocalPlayer.golferScoreAccumulated;
+                        if (num < 38 && golferScoreAccumulated2 >= 2000)
                         {
                             array[num].SetDefaults(4744);
                             num++;
                         }
+                        array[num].SetDefaults(5308);
+                        num++;
                         break;
                     }
-                #endregion
-
-                #region 哥布林工匠 107
                 case 6:
                     array[num].SetDefaults(128);
                     num++;
@@ -640,10 +657,11 @@ namespace MoreShopItem
                     num++;
                     array[num].SetDefaults(161);
                     num++;
+                    if (Main.hardMode)
+                    {
+                        array[num++].SetDefaults(5324);
+                    }
                     break;
-                #endregion
-
-                #region 巫师 108
                 case 7:
                     array[num].SetDefaults(487);
                     num++;
@@ -669,9 +687,6 @@ namespace MoreShopItem
                         num++;
                     }
                     break;
-                #endregion
-
-                #region 机械师 124
                 case 8:
                     array[num].SetDefaults(509);
                     num++;
@@ -707,7 +722,9 @@ namespace MoreShopItem
                     num++;
                     array[num].SetDefaults(849);
                     num++;
+                    array[num++].SetDefaults(1263);
                     array[num++].SetDefaults(3616);
+                    array[num++].SetDefaults(3725);
                     array[num++].SetDefaults(2799);
                     array[num++].SetDefaults(3619);
                     array[num++].SetDefaults(3627);
@@ -723,9 +740,6 @@ namespace MoreShopItem
                         num++;
                     }
                     break;
-                #endregion
-
-                #region 圣诞老人 142
                 case 9:
                     {
                         array[num].SetDefaults(588);
@@ -740,16 +754,13 @@ namespace MoreShopItem
                         num++;
                         array[num].SetDefaults(596);
                         num++;
-                        for (int num8 = 1873; num8 < 1906; num8++)
+                        for (int num5 = 1873; num5 < 1906; num5++)
                         {
-                            array[num].SetDefaults(num8);
+                            array[num].SetDefaults(num5);
                             num++;
                         }
                         break;
                     }
-                #endregion
-
-                #region 松露人 160
                 case 10:
                     if (NPC.downedMechBossAny)
                     {
@@ -767,35 +778,35 @@ namespace MoreShopItem
                     }
                     array[num].SetDefaults(1181);
                     num++;
-                    array[num].SetDefaults(783);
-                    num++;
-                    break;
-                #endregion
-
-                #region 蒸汽朋克人 178
-                case 11:
-                    array[num].SetDefaults(779);
-                    num++;
-                    if (Main.moonPhase >= 4)
+                    array[num++].SetDefaults(5231);
+                    if (!Main.remixWorld)
                     {
-                        array[num].SetDefaults(748);
-                        num++;
+                        array[num++].SetDefaults(783);
+                    }
+                    break;
+                case 11:
+                    if (!Main.remixWorld)
+                    {
+                        array[num++].SetDefaults(779);
+                    }
+                    if (Main.moonPhase >= 4 && Main.hardMode)
+                    {
+                        array[num++].SetDefaults(748);
                     }
                     else
                     {
-                        array[num].SetDefaults(839);
-                        num++;
-                        array[num].SetDefaults(840);
-                        num++;
-                        array[num].SetDefaults(841);
-                        num++;
+                        array[num++].SetDefaults(839);
+                        array[num++].SetDefaults(840);
+                        array[num++].SetDefaults(841);
                     }
                     if (NPC.downedGolemBoss)
                     {
-                        array[num].SetDefaults(948);
-                        num++;
+                        array[num++].SetDefaults(948);
                     }
-                    array[num++].SetDefaults(3623);
+                    if (Main.hardMode)
+                    {
+                        array[num++].SetDefaults(3623);
+                    }
                     array[num++].SetDefaults(3603);
                     array[num++].SetDefaults(3604);
                     array[num++].SetDefaults(3607);
@@ -807,89 +818,80 @@ namespace MoreShopItem
                     array[num++].SetDefaults(3663);
                     array[num++].SetDefaults(3609);
                     array[num++].SetDefaults(3610);
-                    array[num].SetDefaults(995);
-                    num++;
+                    if (Main.hardMode || !Main.getGoodWorld)
+                    {
+                        array[num++].SetDefaults(995);
+                    }
                     if (NPC.downedBoss1 && NPC.downedBoss2 && NPC.downedBoss3)
                     {
-                        array[num].SetDefaults(2203);
-                        num++;
+                        array[num++].SetDefaults(2203);
                     }
                     if (WorldGen.crimson)
                     {
-                        array[num].SetDefaults(2193);
-                        num++;
-                    }
-                    if (!WorldGen.crimson)
-                    {
-                        array[num].SetDefaults(4142);
-                        num++;
-                    }
-                    if (plr.ZoneGraveyard)
-                    {
-                        array[num].SetDefaults(2192);
-                        num++;
-                    }
-                    if (plr.ZoneJungle)
-                    {
-                        array[num].SetDefaults(2204);
-                        num++;
-                    }
-                    if (plr.ZoneSnow)
-                    {
-                        array[num].SetDefaults(2198);
-                        num++;
-                    }
-                    if ((double)(plr.position.Y / 16f) < Main.worldSurface * 0.34999999403953552)
-                    {
-                        array[num].SetDefaults(2197);
-                        num++;
-                    }
-                    if (plr.HasItem(832))
-                    {
-                        array[num].SetDefaults(2196);
-                        num++;
-                    }
-                    array[num].SetDefaults(1263);
-                    num++;
-                    if (Main.eclipse || Main.bloodMoon)
-                    {
-                        if (WorldGen.crimson)
-                        {
-                            array[num].SetDefaults(784);
-                            num++;
-                        }
-                        else
-                        {
-                            array[num].SetDefaults(782);
-                            num++;
-                        }
-                    }
-                    else if (plr.ZoneHallow)
-                    {
-                        array[num].SetDefaults(781);
-                        num++;
+                        array[num++].SetDefaults(2193);
                     }
                     else
                     {
-                        array[num].SetDefaults(780);
-                        num++;
+                        array[num++].SetDefaults(4142);
+                    }
+                    if (plr.ZoneGraveyard)
+                    {
+                        array[num++].SetDefaults(2192);
+                    }
+                    if (plr.ZoneJungle)
+                    {
+                        array[num++].SetDefaults(2204);
+                    }
+                    if (plr.ZoneSnow)
+                    {
+                        array[num++].SetDefaults(2198);
+                    }
+                    if ((double)(plr.position.Y / 16f) < Main.worldSurface * 0.3499999940395355)
+                    {
+                        array[num++].SetDefaults(2197);
+                    }
+                    if (plr.HasItem(832))
+                    {
+                        array[num++].SetDefaults(2196);
+                    }
+                    if (!Main.remixWorld)
+                    {
+                        if (Main.eclipse || Main.bloodMoon)
+                        {
+                            if (WorldGen.crimson)
+                            {
+                                array[num++].SetDefaults(784);
+                            }
+                            else
+                            {
+                                array[num++].SetDefaults(782);
+                            }
+                        }
+                        else if (plr.ZoneHallow)
+                        {
+                            array[num++].SetDefaults(781);
+                        }
+                        else
+                        {
+                            array[num++].SetDefaults(780);
+                        }
+                        if (NPC.downedMoonlord)
+                        {
+                            array[num++].SetDefaults(5392);
+                            array[num++].SetDefaults(5393);
+                            array[num++].SetDefaults(5394);
+                        }
                     }
                     if (Main.hardMode)
                     {
-                        array[num].SetDefaults(1344);
-                        num++;
-                        array[num].SetDefaults(4472);
-                        num++;
+                        array[num++].SetDefaults(1344);
+                        array[num++].SetDefaults(4472);
                     }
                     if (Main.halloween)
                     {
-                        array[num].SetDefaults(1742);
-                        num++;
+                        array[num++].SetDefaults(1742);
                     }
                     break;
-                #endregion
-
-                #region 染料商 207
                 case 12:
                     array[num].SetDefaults(1037);
                     num++;
@@ -924,13 +926,10 @@ namespace MoreShopItem
                         num++;
                     }
                     break;
-                #endregion
-
-                #region 派对女孩 208
                 case 13:
                     array[num].SetDefaults(859);
                     num++;
-                    if (plr.golferScoreAccumulated > 500)
+                    if (Main.LocalPlayer.golferScoreAccumulated > 500)
                     {
                         array[num++].SetDefaults(4743);
                     }
@@ -1013,9 +1012,6 @@ namespace MoreShopItem
                         array[num++].SetDefaults(3743);
                     }
                     break;
-                #endregion
-
-                #region 机器侠 209
                 case 14:
                     array[num].SetDefaults(771);
                     num++;
@@ -1057,6 +1053,16 @@ namespace MoreShopItem
                         array[num].SetDefaults(1346);
                         num++;
                     }
+                    if (Main.hardMode)
+                    {
+                        array[num].SetDefaults(5451);
+                        num++;
+                    }
+                    if (Main.hardMode)
+                    {
+                        array[num].SetDefaults(5452);
+                        num++;
+                    }
                     if (plr.ZoneGraveyard)
                     {
                         array[num].SetDefaults(4409);
@@ -1087,9 +1093,6 @@ namespace MoreShopItem
                         num++;
                     }
                     break;
-                #endregion
-
-                #region 油漆工 227
                 case 15:
                     {
                         array[num].SetDefaults(1071);
@@ -1098,9 +1101,9 @@ namespace MoreShopItem
                         num++;
                         array[num].SetDefaults(1100);
                         num++;
-                        for (int num2 = 1073; num2 <= 1084; num2++)
+                        for (int j = 1073; j <= 1084; j++)
                         {
-                            array[num].SetDefaults(num2);
+                            array[num].SetDefaults(j);
                             num++;
                         }
                         array[num].SetDefaults(1097);
@@ -1111,16 +1114,49 @@ namespace MoreShopItem
                         num++;
                         array[num].SetDefaults(1966);
                         num++;
-                        if (plr.ZoneGraveyard)
-                        {
-                            array[num].SetDefaults(4668);
-                            num++;
-                        }
                         if (Main.hardMode)
                         {
                             array[num].SetDefaults(1967);
                             num++;
                             array[num].SetDefaults(1968);
+                            num++;
+                        }
+                        if (plr.ZoneGraveyard)
+                        {
+                            array[num].SetDefaults(4668);
+                            num++;
+                            if (NPC.downedPlantBoss)
+                            {
+                                array[num].SetDefaults(5344);
+                                num++;
+                            }
+                        }
+                        break;
+                    }
+                case 25:
+                    {
+                        if (Main.xMas)
+                        {
+                            int num2 = 1948;
+                            while (num2 <= 1957 && num < 39)
+                            {
+                                array[num].SetDefaults(num2);
+                                num2++;
+                                num++;
+                            }
+                        }
+                        int num3 = 2158;
+                        while (num3 <= 2160 && num < 39)
+                        {
+                            array[num].SetDefaults(num3);
+                            num3++;
+                            num++;
+                        }
+                        int num4 = 2008;
+                        while (num4 <= 2014 && num < 39)
+                        {
+                            array[num].SetDefaults(num4);
+                            num4++;
                             num++;
                         }
                         if (!plr.ZoneGraveyard)
@@ -1147,6 +1183,11 @@ namespace MoreShopItem
                                 array[num].SetDefaults(1484);
                                 num++;
                             }
+                        }
+                        if (plr.ShoppingZone_Forest)
+                        {
+                            array[num].SetDefaults(5245);
+                            num++;
                         }
                         if (plr.ZoneCrimson)
                         {
@@ -1185,16 +1226,21 @@ namespace MoreShopItem
                         }
                         if (!plr.ZoneGraveyard)
                         {
-                            if ((double)(plr.position.Y / 16f) < Main.worldSurface * 0.34999999403953552)
+                            if ((double)(plr.position.Y / 16f) < Main.worldSurface * 0.3499999940395355)
                             {
                                 array[num].SetDefaults(1485);
                                 num++;
                             }
-                            if ((double)(plr.position.Y / 16f) < Main.worldSurface * 0.34999999403953552 && Main.hardMode)
+                            if ((double)(plr.position.Y / 16f) < Main.worldSurface * 0.3499999940395355 && Main.hardMode)
                             {
                                 array[num].SetDefaults(1494);
                                 num++;
                             }
+                        }
+                        if (Main.IsItStorming)
+                        {
+                            array[num].SetDefaults(5251);
+                            num++;
                         }
                         if (plr.ZoneGraveyard)
                         {
@@ -1208,40 +1254,15 @@ namespace MoreShopItem
                             num++;
                             array[num].SetDefaults(4727);
                             num++;
+                            array[num].SetDefaults(5257);
+                            num++;
                             array[num].SetDefaults(4728);
                             num++;
                             array[num].SetDefaults(4729);
                             num++;
                         }
-                        if (Main.xMas)
-                        {
-                            int num3 = 1948;
-                            while (num3 <= 1957 && num < 39)
-                            {
-                                array[num].SetDefaults(num3);
-                                num3++;
-                                num++;
-                            }
-                        }
-                        int num4 = 2158;
-                        while (num4 <= 2160 && num < 39)
-                        {
-                            array[num].SetDefaults(num4);
-                            num4++;
-                            num++;
-                        }
-                        int num5 = 2008;
-                        while (num5 <= 2014 && num < 39)
-                        {
-                            array[num].SetDefaults(num5);
-                            num5++;
-                            num++;
-                        }
                         break;
                     }
-                #endregion
-
-                #region 巫医 228
                 case 16:
                     array[num++].SetDefaults(1430);
                     array[num++].SetDefaults(986);
@@ -1267,7 +1288,7 @@ namespace MoreShopItem
                     if (Main.hardMode && plr.ZoneJungle)
                     {
                         array[num++].SetDefaults(1171);
-                        if (!Main.dayTime)
+                        if (!Main.dayTime && NPC.downedPlantBoss)
                         {
                             array[num++].SetDefaults(1162);
                         }
@@ -1295,9 +1316,6 @@ namespace MoreShopItem
                         array[num++].SetDefaults(1791);
                     }
                     break;
-                #endregion
-
-                #region 海盗 229
                 case 17:
                     array[num].SetDefaults(928);
                     num++;
@@ -1311,9 +1329,6 @@ namespace MoreShopItem
                     num++;
                     array[num].SetDefaults(2434);
                     num++;
-
-                    //int num7 = (int)((Main.screenPosition.X + (float)(Main.screenWidth / 2)) / 16f);
-                    //if ((double)(Main.screenPosition.Y / 16f) < Main.worldSurface + 10.0 && (num7 < 380 || num7 > Main.maxTilesX - 380))
                     if (plr.ZoneBeach && plr.position.Y < Main.worldSurface * 16.0)
                     {
                         array[num].SetDefaults(1180);
@@ -1325,9 +1340,6 @@ namespace MoreShopItem
                         num++;
                     }
                     break;
-                #endregion
-
-                #region 发型师 353
                 case 18:
                     {
                         array[num].SetDefaults(1990);
@@ -1344,27 +1356,27 @@ namespace MoreShopItem
                             array[num].SetDefaults(1978);
                             num++;
                         }
-                        long num9 = 0L;
-                        for (int num10 = 0; num10 < 54; num10++)
+                        long num7 = 0L;
+                        for (int num8 = 0; num8 < 54; num8++)
                         {
-                            if (plr.inventory[num10].type == 71)
+                            if (plr.inventory[num8].type == 71)
                             {
-                                num9 += plr.inventory[num10].stack;
+                                num7 += plr.inventory[num8].stack;
                             }
-                            if (plr.inventory[num10].type == 72)
+                            if (plr.inventory[num8].type == 72)
                             {
-                                num9 += plr.inventory[num10].stack * 100;
+                                num7 += plr.inventory[num8].stack * 100;
                             }
-                            if (plr.inventory[num10].type == 73)
+                            if (plr.inventory[num8].type == 73)
                             {
-                                num9 += plr.inventory[num10].stack * 10000;
+                                num7 += plr.inventory[num8].stack * 10000;
                             }
-                            if (plr.inventory[num10].type == 74)
+                            if (plr.inventory[num8].type == 74)
                             {
-                                num9 += plr.inventory[num10].stack * 1000000;
+                                num7 += plr.inventory[num8].stack * 1000000;
                             }
                         }
-                        if (num9 >= 1000000)
+                        if (num7 >= 1000000)
                         {
                             array[num].SetDefaults(1980);
                             num++;
@@ -1409,43 +1421,94 @@ namespace MoreShopItem
                         array[num++].SetDefaults(5104);
                         break;
                     }
-                #endregion
-
-                #region 旅商 368
                 case 19:
                     {
-                        for (int num6 = 0; num6 < 40; num6++)
+                        for (int num9 = 0; num9 < 40; num9++)
                         {
-                            if (Main.travelShop[num6] != 0)
+                            if (Main.travelShop[num9] != 0)
                             {
-                                array[num].netDefaults(Main.travelShop[num6]);
+                                array[num].netDefaults(Main.travelShop[num9]);
                                 num++;
                             }
                         }
                         break;
                     }
-                #endregion
-
-                #region 骷髅商人 453
                 case 20:
+                    if (Main.moonPhase == 0)
+                    {
+                        array[num].SetDefaults(284);
+                        num++;
+                    }
+                    if (Main.moonPhase == 1)
+                    {
+                        array[num].SetDefaults(946);
+                        num++;
+                    }
+                    if (Main.moonPhase == 2 && !Main.remixWorld)
+                    {
+                        array[num].SetDefaults(3069);
+                        num++;
+                    }
+                    if (Main.moonPhase == 2 && Main.remixWorld)
+                    {
+                        array[num].SetDefaults(517);
+                        num++;
+                    }
+                    if (Main.moonPhase == 3)
+                    {
+                        array[num].SetDefaults(4341);
+                        num++;
+                    }
+                    if (Main.moonPhase == 4)
+                    {
+                        array[num].SetDefaults(285);
+                        num++;
+                    }
+                    if (Main.moonPhase == 5)
+                    {
+                        array[num].SetDefaults(953);
+                        num++;
+                    }
+                    if (Main.moonPhase == 6)
+                    {
+                        array[num].SetDefaults(3068);
+                        num++;
+                    }
+                    if (Main.moonPhase == 7)
+                    {
+                        array[num].SetDefaults(3084);
+                        num++;
+                    }
                     if (Main.moonPhase % 2 == 0)
                     {
                         array[num].SetDefaults(3001);
+                        num++;
                     }
-                    else
+                    if (Main.moonPhase % 2 != 0)
                     {
                         array[num].SetDefaults(28);
+                        num++;
                     }
-                    num++;
+                    if (Main.moonPhase % 2 != 0 && Main.hardMode)
+                    {
+                        array[num].SetDefaults(188);
+                        num++;
+                    }
                     if (!Main.dayTime || Main.moonPhase == 0)
                     {
                         array[num].SetDefaults(3002);
+                        num++;
+                        if (plr.HasItem(930))
+                        {
+                            array[num].SetDefaults(5377);
+                            num++;
+                        }
                     }
-                    else
+                    else if (Main.dayTime && Main.moonPhase != 0)
                     {
                         array[num].SetDefaults(282);
+                        num++;
                     }
-                    num++;
                     if (Main.time % 60.0 * 60.0 * 6.0 <= 10800.0)
                     {
                         array[num].SetDefaults(3004);
@@ -1509,18 +1572,20 @@ namespace MoreShopItem
                         array[num].SetDefaults(3043);
                         num++;
                     }
+                    if (!plr.ateArtisanBread && Main.moonPhase >= 3 && Main.moonPhase <= 5)
+                    {
+                        array[num].SetDefaults(5326);
+                        num++;
+                    }
                     break;
-                #endregion
-
-                #region 酒馆老板 550
                 case 21:
                     {
                         bool flag2 = Main.hardMode && NPC.downedMechBossAny;
-                        bool num11 = Main.hardMode && NPC.downedGolemBoss;
+                        bool flag3 = Main.hardMode && NPC.downedGolemBoss;
                         array[num].SetDefaults(353);
                         num++;
                         array[num].SetDefaults(3828);
-                        if (num11)
+                        if (flag3)
                         {
                             array[num].shopCustomPrice = Item.buyPrice(0, 4);
                         }
@@ -1536,7 +1601,7 @@ namespace MoreShopItem
                         array[num].SetDefaults(3816);
                         num++;
                         array[num].SetDefaults(3813);
-                        array[num].shopCustomPrice = 75;
+                        array[num].shopCustomPrice = 50;
                         array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                         num++;
                         num = 10;
@@ -1559,156 +1624,153 @@ namespace MoreShopItem
                         {
                             num = 20;
                             array[num].SetDefaults(3819);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3825);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3833);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3830);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                         }
-                        if (num11)
+                        if (flag3)
                         {
                             num = 30;
                             array[num].SetDefaults(3820);
-                            array[num].shopCustomPrice = 100;
+                            array[num].shopCustomPrice = 60;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3826);
-                            array[num].shopCustomPrice = 100;
+                            array[num].shopCustomPrice = 60;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3834);
-                            array[num].shopCustomPrice = 100;
+                            array[num].shopCustomPrice = 60;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3831);
-                            array[num].shopCustomPrice = 100;
+                            array[num].shopCustomPrice = 60;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                         }
                         if (flag2)
                         {
                             num = 4;
                             array[num].SetDefaults(3800);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3801);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3802);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             num = 14;
                             array[num].SetDefaults(3797);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3798);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3799);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             num = 24;
                             array[num].SetDefaults(3803);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3804);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3805);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             num = 34;
                             array[num].SetDefaults(3806);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3807);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3808);
-                            array[num].shopCustomPrice = 25;
+                            array[num].shopCustomPrice = 15;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                         }
-                        if (num11)
+                        if (flag3)
                         {
                             num = 7;
                             array[num].SetDefaults(3871);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3872);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3873);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             num = 17;
                             array[num].SetDefaults(3874);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3875);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3876);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             num = 27;
                             array[num].SetDefaults(3877);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3878);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3879);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             num = 37;
                             array[num].SetDefaults(3880);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3881);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                             array[num].SetDefaults(3882);
-                            array[num].shopCustomPrice = 75;
+                            array[num].shopCustomPrice = 50;
                             array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
                             num++;
                         }
-                        num = ((!num11) ? ((!flag2) ? 4 : 30) : 39);
+                        num = (flag3 ? 39 : ((!flag2) ? 4 : 30));
                         break;
                     }
-                #endregion
-
-                #region 高尔夫球手 588
                 case 22:
                     {
                         array[num++].SetDefaults(4587);
@@ -1721,8 +1783,8 @@ namespace MoreShopItem
                         array[num++].SetDefaults(4086);
                         array[num++].SetDefaults(4087);
                         array[num++].SetDefaults(4088);
-                        int golferScoreAccumulated2 = plr.golferScoreAccumulated;
-                        if (golferScoreAccumulated2 > 500)
+                        int golferScoreAccumulated = plr.golferScoreAccumulated;
+                        if (golferScoreAccumulated > 500)
                         {
                             array[num].SetDefaults(4039);
                             num++;
@@ -1739,7 +1801,7 @@ namespace MoreShopItem
                         array[num++].SetDefaults(4040);
                         array[num++].SetDefaults(4319);
                         array[num++].SetDefaults(4320);
-                        if (golferScoreAccumulated2 > 1000)
+                        if (golferScoreAccumulated > 1000)
                         {
                             array[num].SetDefaults(4591);
                             num++;
@@ -1755,12 +1817,12 @@ namespace MoreShopItem
                         array[num++].SetDefaults(4136);
                         array[num++].SetDefaults(4137);
                         array[num++].SetDefaults(4049);
-                        if (golferScoreAccumulated2 > 500)
+                        if (golferScoreAccumulated > 500)
                         {
                             array[num].SetDefaults(4265);
                             num++;
                         }
-                        if (golferScoreAccumulated2 > 2000)
+                        if (golferScoreAccumulated > 2000)
                         {
                             array[num].SetDefaults(4595);
                             num++;
@@ -1776,22 +1838,22 @@ namespace MoreShopItem
                                 num++;
                             }
                         }
-                        if (golferScoreAccumulated2 > 500)
+                        if (golferScoreAccumulated > 500)
                         {
                             array[num].SetDefaults(4599);
                             num++;
                         }
-                        if (golferScoreAccumulated2 >= 1000)
+                        if (golferScoreAccumulated >= 1000)
                         {
                             array[num].SetDefaults(4600);
                             num++;
                         }
-                        if (golferScoreAccumulated2 >= 2000)
+                        if (golferScoreAccumulated >= 2000)
                         {
                             array[num].SetDefaults(4601);
                             num++;
                         }
-                        if (golferScoreAccumulated2 >= 2000)
+                        if (golferScoreAccumulated >= 2000)
                         {
                             if (Main.moonPhase == 0 || Main.moonPhase == 1)
                             {
@@ -1816,9 +1878,6 @@ namespace MoreShopItem
                         }
                         break;
                     }
-                #endregion
-
-                #region 动物学家 633
                 case 23:
                     {
                         BestiaryUnlockProgressReport bestiaryProgressReport = Main.GetBestiaryProgressReport();
@@ -1828,19 +1887,20 @@ namespace MoreShopItem
                         }
                         array[num++].SetDefaults(4767);
                         array[num++].SetDefaults(4759);
+                        if (Main.moonPhase == 0 && !Main.dayTime)
+                        {
+                            array[num++].SetDefaults(5253);
+                        }
                         if (bestiaryProgressReport.CompletionPercent >= 0.1f)
                         {
                             array[num++].SetDefaults(4672);
                         }
-                        if (!NPC.boughtCat)
-                        {
-                            array[num++].SetDefaults(4829);
-                        }
-                        if (!NPC.boughtDog && bestiaryProgressReport.CompletionPercent >= 0.25f)
+                        array[num++].SetDefaults(4829);
+                        if (bestiaryProgressReport.CompletionPercent >= 0.25f)
                         {
                             array[num++].SetDefaults(4830);
                         }
-                        if (!NPC.boughtBunny && bestiaryProgressReport.CompletionPercent >= 0.45f)
+                        if (bestiaryProgressReport.CompletionPercent >= 0.45f)
                         {
                             array[num++].SetDefaults(4910);
                         }
@@ -1884,6 +1944,10 @@ namespace MoreShopItem
                         {
                             array[num++].SetDefaults(4788);
                         }
+                        if (bestiaryProgressReport.CompletionPercent >= 0.35f)
+                        {
+                            array[num++].SetDefaults(4763);
+                        }
                         if (bestiaryProgressReport.CompletionPercent >= 0.4f)
                         {
                             array[num++].SetDefaults(4955);
@@ -1906,11 +1970,11 @@ namespace MoreShopItem
                         }
                         if (bestiaryProgressReport.CompletionPercent >= 0.5f)
                         {
-                            array[num++].SetDefaults(4777);
+                            array[num++].SetDefaults(5285);
                         }
-                        if (bestiaryProgressReport.CompletionPercent >= 0.6f)
+                        if (bestiaryProgressReport.CompletionPercent >= 0.5f)
                         {
-                            array[num++].SetDefaults(4763);
+                            array[num++].SetDefaults(4777);
                         }
                         if (bestiaryProgressReport.CompletionPercent >= 0.7f)
                         {
@@ -1945,9 +2009,6 @@ namespace MoreShopItem
                         }
                         break;
                     }
-                #endregion
-
-                #region 公主 663
                 case 24:
                     array[num++].SetDefaults(5071);
                     array[num++].SetDefaults(5072);
@@ -1964,6 +2025,13 @@ namespace MoreShopItem
                     array[num++].SetDefaults(5085);
                     array[num++].SetDefaults(5086);
                     array[num++].SetDefaults(5087);
+                    array[num++].SetDefaults(5310);
+                    array[num++].SetDefaults(5222);
+                    array[num++].SetDefaults(5228);
+                    if (NPC.downedSlimeKing && NPC.downedQueenSlime)
+                    {
+                        array[num++].SetDefaults(5266);
+                    }
                     if (Main.hardMode && NPC.downedMoonlord)
                     {
                         array[num++].SetDefaults(5044);
@@ -2003,18 +2071,24 @@ namespace MoreShopItem
                     }
                     array[num++].SetDefaults(5088);
                     break;
-                    #endregion
             }
-            #endregion
-
-            #region 晶塔
-            bool num12 = type != 19 && type != 20;
-            bool flag3 = TeleportPylonsSystem.DoesPositionHaveEnoughNPCs(2, plr.Center.ToTileCoordinates16());
-            if (num12 && flag && flag3 && !plr.ZoneCorrupt && !plr.ZoneCrimson)
+            bool flag4 = type != 19 && type != 20;
+            bool flag5 = TeleportPylonsSystem.DoesPositionHaveEnoughNPCs(2, plr.Center.ToTileCoordinates16());
+            if (flag4 && (flag || Main.remixWorld) && flag5 && !plr.ZoneCorrupt && !plr.ZoneCrimson)
             {
                 if (!plr.ZoneSnow && !plr.ZoneDesert && !plr.ZoneBeach && !plr.ZoneJungle && !plr.ZoneHallow && !plr.ZoneGlowshroom && (double)(plr.Center.Y / 16f) < Main.worldSurface && num < 39)
                 {
-                    array[num++].SetDefaults(4876);
+                    if (Main.remixWorld)
+                    {
+                        if ((double)(plr.Center.Y / 16f) > Main.rockLayer && plr.Center.Y / 16f < Main.maxTilesY - 350 && num < 39)
+                        {
+                            array[num++].SetDefaults(4876);
+                        }
+                    }
+                    else if ((double)(plr.Center.Y / 16f) < Main.worldSurface && num < 39)
+                    {
+                        array[num++].SetDefaults(4876);
+                    }
                 }
                 if (plr.ZoneSnow && num < 39)
                 {
@@ -2024,13 +2098,26 @@ namespace MoreShopItem
                 {
                     array[num++].SetDefaults(4919);
                 }
-                if (!plr.ZoneSnow && !plr.ZoneDesert && !plr.ZoneBeach && !plr.ZoneJungle && !plr.ZoneHallow && !plr.ZoneGlowshroom && (double)(plr.Center.Y / 16f) >= Main.worldSurface && num < 39)
+                if (Main.remixWorld)
+                {
+                    if (!plr.ZoneSnow && !plr.ZoneDesert && !plr.ZoneBeach && !plr.ZoneJungle && !plr.ZoneHallow && (double)(plr.Center.Y / 16f) >= Main.worldSurface && num < 39)
+                    {
+                        array[num++].SetDefaults(4917);
+                    }
+                }
+                else if (!plr.ZoneSnow && !plr.ZoneDesert && !plr.ZoneBeach && !plr.ZoneJungle && !plr.ZoneHallow && !plr.ZoneGlowshroom && (double)(plr.Center.Y / 16f) >= Main.worldSurface && num < 39)
                 {
                     array[num++].SetDefaults(4917);
                 }
-                if (plr.ZoneBeach && (double)plr.position.Y < Main.worldSurface * 16.0 && num < 39)
+                bool flag6 = plr.ZoneBeach && plr.position.Y < Main.worldSurface * 16.0;
+                if (Main.remixWorld)
                 {
-                    // 海洋晶塔
+                    float num10 = plr.position.X / 16f;
+                    float num11 = plr.position.Y / 16f;
+                    flag6 |= ((double)num10 < Main.maxTilesX * 0.43 || (double)num10 > Main.maxTilesX * 0.57) && (double)num11 > Main.rockLayer && num11 < Main.maxTilesY - 350;
+                }
+                if (flag6 && num < 39)
+                {
                     array[num++].SetDefaults(4918);
                 }
                 if (plr.ZoneJungle && num < 39)
@@ -2041,16 +2128,14 @@ namespace MoreShopItem
                 {
                     array[num++].SetDefaults(4916);
                 }
-                if (plr.ZoneGlowshroom && num < 39)
+                if (plr.ZoneGlowshroom && (!Main.remixWorld || plr.Center.Y / 16f < Main.maxTilesY - 200) && num < 39)
                 {
                     array[num++].SetDefaults(4921);
                 }
             }
-            #endregion
-
-            for (int num13 = 0; num13 < num; num13++)
+            for (int num12 = 0; num12 < num; num12++)
             {
-                array[num13].isAShopItem = true;
+                array[num12].isAShopItem = true;
             }
             return array;
         }
@@ -2076,6 +2161,5 @@ namespace MoreShopItem
         {
             return Main.BestiaryDB.FindEntryByNPCID(npcId).UIInfoProvider.GetEntryUICollectionInfo().UnlockState > BestiaryEntryUnlockState.NotKnownAtAll_0;
         }
-        #endregion
     }
 }
